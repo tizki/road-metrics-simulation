@@ -1,177 +1,233 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Road Traffic Control</title>
+    <title>Traffic Control System</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 20px auto;
-            padding: 0 20px;
+        .road-container {
+            margin: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
         }
         .button {
-            display: inline-block;
+            margin: 5px;
             padding: 10px 20px;
-            margin: 10px;
-            background-color: #4CAF50;
-            color: white;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            position: relative;
         }
-        .button:disabled {
-            opacity: 0.7;
-            cursor: default;
+        .rush-hour { background-color: #f44336; color: white; }
+        .normal { background-color: #4CAF50; color: white; }
+        .night { background-color: #2196F3; color: white; }
+        .stats {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
         }
-        .button.active {
-            box-shadow: 0 0 0 2px white, 0 0 0 4px currentColor;
-        }
-        .button:hover {
-            background-color: #45a049;
-        }
-        .button.rush {
-            background-color: #f44336;
-        }
-        .button.night {
-            background-color: #2196F3;
-        }
-        .button.normal {
-            background-color: #4CAF50;
-        }
-        .status {
-            margin-top: 20px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .road {
-            position: relative;
-            height: 100px;
+        
+        /* Road animation styles */
+        .road-animation {
+            height: 40px;
             background-color: #333;
-            margin: 20px 0;
-            border-radius: 4px;
+            margin: 15px 0;
+            position: relative;
             overflow: hidden;
+            border-radius: 4px;
+            width: 100%;
         }
+        
         .car {
             position: absolute;
-            width: 60px;
-            height: 30px;
+            width: 20px;
+            height: 10px;
             background-color: #fff;
-            border-radius: 5px;
-            animation: drive var(--drive-time, 4s) linear;
-            bottom: 10px;
-            transition: animation-duration 0.5s ease;
+            border-radius: 3px;
+            animation: moveCar linear infinite;
         }
-        @keyframes drive {
-            from { left: -60px; }
-            to { left: 100%; }
+        
+        /* Different lanes */
+        .car:nth-child(odd) { top: 5px; }
+        .car:nth-child(even) { top: 25px; }
+        
+        @keyframes moveCar {
+            0% { left: -30px; }
+            100% { left: 100%; }
         }
-        .lane {
-            position: absolute;
-            width: 100%;
-            height: 2px;
-            background-color: #fff;
-            opacity: 0.5;
+        
+        /* Animation speeds for different patterns */
+        .night .car { 
+            animation-duration: 20s;
         }
-        .lane-1 { bottom: 25px; }
-        .lane-2 { bottom: 75px; }
-        #cars {
-            position: absolute;
-            width: 100%;
-            height: 100%;
+        .normal .car { 
+            animation-duration: 10s;
+        }
+        .rush-hour-animation .car { 
+            animation-duration: 5s;
         }
     </style>
 </head>
 <body>
-    <h1>Road Traffic Control</h1>
-    
-    <div class="road">
-        <div class="lane lane-1"></div>
-        <div class="lane lane-2"></div>
-        <div id="cars"></div>
+    <h1>Traffic Control System</h1>
+
+    <div class="road-container">
+        <h2>Road 1</h2>
+        <div class="road-animation" id="animation-road-1">
+        </div>
+        <button class="button rush-hour" onclick="setTrafficPattern('road-1', 'rush_hour')">Rush Hour</button>
+        <button class="button normal" onclick="setTrafficPattern('road-1', 'normal')">Normal</button>
+        <button class="button night" onclick="setTrafficPattern('road-1', 'night')">Night</button>
+        <div class="stats" id="stats-road-1">Loading stats...</div>
     </div>
 
-    <div>
-        <h2>Set Traffic Pattern</h2>
-        <button onclick="setRate('rush_hour')" class="button rush">Rush Hour</button>
-        <button onclick="setRate('night')" class="button night">Night</button>
-        <button onclick="setRate('normal')" class="button normal">Normal</button>
+    <div class="road-container">
+        <h2>Road 6</h2>
+        <div class="road-animation" id="animation-road-6">
+        </div>
+        <button class="button rush-hour" onclick="setTrafficPattern('road-6', 'rush_hour')">Rush Hour</button>
+        <button class="button normal" onclick="setTrafficPattern('road-6', 'normal')">Normal</button>
+        <button class="button night" onclick="setTrafficPattern('road-6', 'night')">Night</button>
+        <div class="stats" id="stats-road-6">Loading stats...</div>
     </div>
 
-    <div class="status">
-        <h2>Metrics</h2>
-        <p>View metrics at: <a href="/metrics">/metrics</a></p>
-        <p>View in Grafana: <a href="http://localhost:3000" target="_blank">http://localhost:3000</a></p>
+    <div class="road-container">
+        <h2>Ayalon</h2>
+        <div class="road-animation" id="animation-Ayalon">
+        </div>
+        <button class="button rush-hour" onclick="setTrafficPattern('Ayalon', 'rush_hour')">Rush Hour</button>
+        <button class="button normal" onclick="setTrafficPattern('Ayalon', 'normal')">Normal</button>
+        <button class="button night" onclick="setTrafficPattern('Ayalon', 'night')">Night</button>
+        <div class="stats" id="stats-Ayalon">Loading stats...</div>
+    </div>
+
+    <div class="road-container">
+        <h2>Road 90</h2>
+        <div class="road-animation" id="animation-road-90">
+        </div>
+        <button class="button rush-hour" onclick="setTrafficPattern('road-90', 'rush_hour')">Rush Hour</button>
+        <button class="button normal" onclick="setTrafficPattern('road-90', 'normal')">Normal</button>
+        <button class="button night" onclick="setTrafficPattern('road-90', 'night')">Night</button>
+        <div class="stats" id="stats-road-90">Loading stats...</div>
+    </div>
+
+    <div class="road-container">
+        <h2>Road 431</h2>
+        <div class="road-animation" id="animation-road-431">
+        </div>
+        <button class="button rush-hour" onclick="setTrafficPattern('road-431', 'rush_hour')">Rush Hour</button>
+        <button class="button normal" onclick="setTrafficPattern('road-431', 'normal')">Normal</button>
+        <button class="button night" onclick="setTrafficPattern('road-431', 'night')">Night</button>
+        <div class="stats" id="stats-road-431">Loading stats...</div>
     </div>
 
     <script>
-        let currentPattern = 'normal';
-        const patterns = {
-            'rush_hour': { interval: 1000, driveTime: '3s', frequency: 0.8 },
-            'night': { interval: 4000, driveTime: '6s', frequency: 0.3 },
-            'normal': { interval: 2000, driveTime: '4s', frequency: 0.5 }
-        };
-
-        function updateButtonStates(pattern) {
-            document.querySelectorAll('.button').forEach(btn => {
-                btn.classList.remove('active');
-                btn.disabled = false;
-            });
-            const activeBtn = document.querySelector(`.button.${pattern}`);
-            if (activeBtn) {
-                activeBtn.classList.add('active');
-                activeBtn.disabled = true;
-            }
-        }
-
-        async function setRate(pattern) {
-            if (pattern === currentPattern) return;
-            
-            const buttons = document.querySelectorAll('.button');
-            buttons.forEach(btn => btn.disabled = true);
-
-            try {
-                const response = await fetch(`/set_rate?rate=${pattern}`);
-                if (response.ok) {
-                    currentPattern = pattern;
-                    document.documentElement.style.setProperty('--drive-time', patterns[pattern].driveTime);
-                    updateCarGeneration();
-                    updateButtonStates(pattern);
+        function setTrafficPattern(road, pattern) {
+            fetch(`/set_rate?road=${road}&rate=${pattern}`, {
+                method: 'GET'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
                 }
-            } catch (error) {
-                console.error('Error setting rate:', error);
-            } finally {
-                buttons.forEach(btn => btn.disabled = false);
-            }
+                return response.text();
+            })
+            .then(data => {
+                console.log('Success:', data);
+                updateStats();
+                updateAnimation(road, pattern);
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                alert('Failed to update traffic pattern');
+            });
         }
 
-        function addCar() {
-            if (Math.random() > patterns[currentPattern].frequency) return;
-
-            const cars = document.getElementById('cars');
+        function createCar(index, total) {
             const car = document.createElement('div');
             car.className = 'car';
-            car.style.backgroundColor = ['#f44336', '#2196F3', '#4CAF50', '#9C27B0', '#FF9800'][Math.floor(Math.random() * 5)];
-            car.style.bottom = Math.random() > 0.5 ? '10px' : '60px';
-            cars.appendChild(car);
+            // Distribute cars evenly across the animation duration
+            const delay = (index / total) * 100;
+            car.style.animationDelay = `-${delay}%`;
+            return car;
+        }
+
+        function updateAnimation(road, pattern, numCars) {
+            const animationElement = document.getElementById(`animation-${road}`);
             
-            car.addEventListener('animationend', () => {
-                cars.removeChild(car);
-            });
+            // Update pattern (speed)
+            animationElement.classList.remove('night', 'normal', 'rush-hour-animation');
+            if (pattern === 'night') {
+                animationElement.classList.add('night');
+                numCars = 1; // Just 1 car at night
+            } else if (pattern === 'normal') {
+                animationElement.classList.add('normal');
+                numCars = 10; // 10 cars in normal traffic
+            } else if (pattern === 'rush_hour') {
+                animationElement.classList.add('rush-hour-animation');
+                numCars = 50; // 50 cars during rush hour
+            }
+
+            // Add or remove cars as needed
+            const currentCars = animationElement.children.length;
+            if (currentCars < numCars) {
+                // Add cars
+                for (let i = currentCars; i < numCars; i++) {
+                    animationElement.appendChild(createCar(i, numCars));
+                }
+            } else if (currentCars > numCars) {
+                // Remove excess cars
+                while (animationElement.children.length > numCars) {
+                    animationElement.removeChild(animationElement.lastChild);
+                }
+            }
         }
 
-        let carInterval;
-        function updateCarGeneration() {
-            if (carInterval) clearInterval(carInterval);
-            carInterval = setInterval(addCar, patterns[currentPattern].interval);
+        function updateStats() {
+            fetch('/metrics')
+            .then(response => response.text())
+            .then(data => {
+                const roads = ['road-1', 'road-6', 'Ayalon', 'road-90', 'road-431'];
+                
+                roads.forEach(road => {
+                    const carsMatch = data.match(new RegExp(`cars_on_road{road="${road}"} ([0-9.]+)`));
+                    const patternMatch = data.match(new RegExp(`traffic_pattern{road="${road}"} ([0-9.]+)`));
+                    
+                    let statsHtml = '';
+                    let pattern = 'normal';
+                    let cars = 0;
+
+                    if (carsMatch) {
+                        cars = Math.round(parseFloat(carsMatch[1]));
+                        statsHtml += `Current cars: ${cars}<br>`;
+                    }
+                    
+                    if (patternMatch) {
+                        const patternValue = parseFloat(patternMatch[1]);
+                        let patternText = 'Normal';
+                        if (patternValue === 1) {
+                            patternText = 'Night';
+                            pattern = 'night';
+                        } else if (patternValue === 3) {
+                            patternText = 'Rush Hour';
+                            pattern = 'rush_hour';
+                        }
+                        statsHtml += `Current pattern: ${patternText}`;
+                    }
+                    
+                    updateAnimation(road, pattern, cars);
+                    
+                    const statsElement = document.getElementById(`stats-${road}`);
+                    if (statsElement) {
+                        statsElement.innerHTML = statsHtml;
+                    }
+                });
+            })
+            .catch(error => console.error('Error fetching stats:', error));
         }
 
-        // Initialize
-        updateButtonStates('normal');
-        updateCarGeneration();
+        // Update stats every 2 seconds
+        setInterval(updateStats, 2000);
+        // Initial update
+        updateStats();
     </script>
 </body>
 </html> 
