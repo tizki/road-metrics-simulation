@@ -23,4 +23,18 @@ The system exports two main metrics:
 1. `cars_on_road` (gauge) - Current number of cars on the road by color and maker
 2. `road_traffic_total` (counter) - Total number of cars that have entered the road by color and maker
 
-## Project Structure 
+## Running the Project
+
+1. Start the simulator:
+```bash
+go run main.go
+```
+2. The simulator will start exporting metrics on port 8080
+
+## Access Points
+
+- Simulator: http://localhost:8080/ui.html
+- Metrics endpoint: http://localhost:8080/metrics
+- Prometheus UI: http://localhost:9090
+- Grafana dashboard: http://localhost:3000
+  - Default login: admin/admin

@@ -9,12 +9,7 @@ rule_files:
 
 scrape_configs:
   - job_name: 'road-traffic'
-    scrape_interval: 5s
+    scrape_interval: 15s
     static_configs:
       - targets: ['road_traffic_exporter:8080']
     metrics_path: '/metrics'
-    metric_relabel_configs:
-    - source_labels: ['instance']
-      target_label: 'instance'
-      action: 'replace'
-      replacement: ''
