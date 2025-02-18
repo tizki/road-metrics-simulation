@@ -28,8 +28,6 @@ bin/
 go.work
 go.work.sum
 
-# Binary
-road_traffic_exporter
 
 # Dependency directories
 vendor/
