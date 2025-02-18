@@ -25,11 +25,23 @@ The system exports two main metrics:
 
 ## Running the Project
 
+### Option 1: Direct Run
 1. Start the simulator:
 ```bash
 go run main.go
 ```
 2. The simulator will start exporting metrics on port 8080
+
+### Option 2: Docker Compose
+1. Start all services (simulator, Prometheus, Grafana):
+```bash
+docker compose up -d
+```
+
+2. Stop all services:
+```bash
+docker compose down
+```
 
 ## Access Points
 
