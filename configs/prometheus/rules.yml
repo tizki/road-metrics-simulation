@@ -1,0 +1,8 @@
+groups:
+  - name: traffic_history
+    interval: 1m
+    rules:
+      - record: cars_on_road_hourly
+        expr: avg_over_time(cars_on_road[1h])
+      - record: traffic_pattern_hourly
+        expr: avg_over_time(traffic_pattern[1h])

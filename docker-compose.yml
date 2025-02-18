@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  road_traffic_exporter:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./web:/app/web
+    networks:
+      - monitoring
+    healthcheck:
+      test: curl --fail http://localhost:8080/metrics || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s  # Give the app time to start
+
+  prometheus:
+    image: prom/prometheus:latest
+    volumes:
+      - ./configs/prometheus/:/etc/prometheus/
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--web.enable-remote-write-receiver"
+      - "--storage.tsdb.retention.time=30d"
+      - "--storage.tsdb.min-block-duration=2h"
+      - "--storage.tsdb.max-block-duration=2h"
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring
+    depends_on:
+      road_traffic_exporter:
+        condition: service_healthy
+
+  backfill:
+    image: curlimages/curl:latest
+    networks:
+      - monitoring
+    volumes:
+      - ./scripts:/scripts
+    entrypoint: ["/bin/sh", "/scripts/backfill.sh"]
+    depends_on:
+      road_traffic_exporter:
+        condition: service_healthy
+      prometheus:
+        condition: service_started
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./configs/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./configs/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./configs/grafana/dashboards:/etc/grafana/dashboards
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_DASHBOARDS_JSON_ENABLED=true
+      - GF_DASHBOARDS_PROVISIONING_PATH=/etc/grafana/provisioning/dashboards
+    networks:
+      - monitoring
+    depends_on:
+      - prometheus
+
+networks:
+  monitoring:
+    driver: bridge
+
+volumes:
+  grafana-storage:

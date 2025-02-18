@@ -1,0 +1,56 @@
+# IDE - VSCode
+.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+.history/
+
+# IDE - IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+.idea_modules/
+
+# Go
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+go.work.sum
+
+# Binary
+road_traffic_exporter
+
+# Dependency directories
+vendor/
+
+# Build
+dist/
+build/
+
+# Test coverage
+coverage.txt
+coverage.html
+*.cover
+
+# Debug
+__debug_bin
+debug.test
+
+# Environment
+.env
+*.env
+
+# Misc
+.DS_Store
+*.log 
