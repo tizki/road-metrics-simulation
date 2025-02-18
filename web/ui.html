@@ -25,45 +25,43 @@
             color: #666;
         }
         
-        /* Road animation styles */
+        /* Simple road style */
         .road-animation {
-            height: 40px;
+            height: 80px;
             background-color: #333;
             margin: 15px 0;
             position: relative;
-            overflow: hidden;
             border-radius: 4px;
             width: 100%;
+            overflow: hidden;
         }
         
+        /* Lane markings */
+        .road-animation::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(to right, white 50%, transparent 50%);
+            background-size: 20px 100%;
+            opacity: 0.5;
+        }
+        
+        /* Car styles */
         .car {
             position: absolute;
-            width: 20px;
-            height: 10px;
+            width: 30px;
+            height: 15px;
             background-color: #fff;
             border-radius: 3px;
-            animation: moveCar linear infinite;
+            transition: transform 0.1s;
         }
         
-        /* Different lanes */
-        .car:nth-child(odd) { top: 5px; }
-        .car:nth-child(even) { top: 25px; }
-        
-        @keyframes moveCar {
-            0% { left: -30px; }
-            100% { left: 100%; }
-        }
-        
-        /* Animation speeds for different patterns */
-        .night .car { 
-            animation-duration: 20s;
-        }
-        .normal .car { 
-            animation-duration: 10s;
-        }
-        .rush-hour-animation .car { 
-            animation-duration: 5s;
-        }
+        /* Lane positioning */
+        .lane1 { top: 15px; }
+        .lane2 { top: 50px; }
     </style>
 </head>
 <body>
@@ -133,7 +131,6 @@
             .then(data => {
                 console.log('Success:', data);
                 updateStats();
-                updateAnimation(road, pattern);
             })
             .catch((error) => {
                 console.error('Error:', error);
@@ -141,44 +138,85 @@
             });
         }
 
-        function createCar(index, total) {
+        function createCar(roadElement, pattern) {
             const car = document.createElement('div');
             car.className = 'car';
-            // Distribute cars evenly across the animation duration
-            const delay = (index / total) * 100;
-            car.style.animationDelay = `-${delay}%`;
-            return car;
+            
+            // Randomly choose lane
+            const lane = Math.random() < 0.5 ? 'lane1' : 'lane2';
+            car.classList.add(lane);
+            
+            // Set initial position (off-screen to the left)
+            car.style.transform = 'translateX(-30px)';
+            
+            // Add to road
+            roadElement.appendChild(car);
+            
+            // Set speed based on pattern
+            let duration;
+            switch (pattern) {
+                case 'night':
+                    duration = 3000; // 3 seconds - fastest
+                    break;
+                case 'normal':
+                    duration = 5000; // 5 seconds
+                    break;
+                case 'rush_hour':
+                    duration = 8000; // 8 seconds - slowest
+                    break;
+                default:
+                    duration = 5000;
+            }
+            
+            // Animate the car
+            const roadWidth = roadElement.offsetWidth;
+            const startTime = performance.now();
+            
+            function animate(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = elapsed / duration;
+                
+                if (progress < 1) {
+                    const xPos = (roadWidth + 60) * progress - 30;
+                    car.style.transform = `translateX(${xPos}px)`;
+                    requestAnimationFrame(animate);
+                } else {
+                    car.remove(); // Remove car when it reaches the end
+                }
+            }
+            
+            requestAnimationFrame(animate);
         }
 
-        function updateAnimation(road, pattern, numCars) {
-            const animationElement = document.getElementById(`animation-${road}`);
+        function manageTraffic(roadElement, pattern) {
+            // Clear any existing interval for this road
+            if (roadElement.trafficInterval) {
+                clearInterval(roadElement.trafficInterval);
+            }
             
-            // Update pattern (speed)
-            animationElement.classList.remove('night', 'normal', 'rush-hour-animation');
-            if (pattern === 'night') {
-                animationElement.classList.add('night');
-                numCars = 1; // Just 1 car at night
-            } else if (pattern === 'normal') {
-                animationElement.classList.add('normal');
-                numCars = 10; // 10 cars in normal traffic
-            } else if (pattern === 'rush_hour') {
-                animationElement.classList.add('rush-hour-animation');
-                numCars = 50; // 50 cars during rush hour
+            // Set frequency of new cars based on pattern
+            let interval;
+            switch (pattern) {
+                case 'night':
+                    interval = 4000; // New car every 4 seconds
+                    break;
+                case 'normal':
+                    interval = 2000; // New car every 2 seconds
+                    break;
+                case 'rush_hour':
+                    interval = 800; // New car every 0.8 seconds
+                    break;
+                default:
+                    interval = 2000;
             }
-
-            // Add or remove cars as needed
-            const currentCars = animationElement.children.length;
-            if (currentCars < numCars) {
-                // Add cars
-                for (let i = currentCars; i < numCars; i++) {
-                    animationElement.appendChild(createCar(i, numCars));
-                }
-            } else if (currentCars > numCars) {
-                // Remove excess cars
-                while (animationElement.children.length > numCars) {
-                    animationElement.removeChild(animationElement.lastChild);
-                }
-            }
+            
+            // Create initial cars
+            createCar(roadElement, pattern);
+            
+            // Store the interval ID on the road element
+            roadElement.trafficInterval = setInterval(() => {
+                createCar(roadElement, pattern);
+            }, interval);
         }
 
         function updateStats() {
@@ -193,10 +231,9 @@
                     
                     let statsHtml = '';
                     let pattern = 'normal';
-                    let cars = 0;
-
+                    
                     if (carsMatch) {
-                        cars = Math.round(parseFloat(carsMatch[1]));
+                        const cars = Math.round(parseFloat(carsMatch[1]));
                         statsHtml += `Current cars: ${cars}<br>`;
                     }
                     
@@ -213,7 +250,14 @@
                         statsHtml += `Current pattern: ${patternText}`;
                     }
                     
-                    updateAnimation(road, pattern, cars);
+                    const roadElement = document.getElementById(`animation-${road}`);
+                    if (roadElement && !roadElement.currentPattern) {
+                        roadElement.currentPattern = pattern;
+                        manageTraffic(roadElement, pattern);
+                    } else if (roadElement && roadElement.currentPattern !== pattern) {
+                        roadElement.currentPattern = pattern;
+                        manageTraffic(roadElement, pattern);
+                    }
                     
                     const statsElement = document.getElementById(`stats-${road}`);
                     if (statsElement) {
